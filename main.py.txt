@@ -1,0 +1,38 @@
+import os
+from fastapi import FastAPI
+import uvicorn
+from datetime import datetime
+import psutil
+
+app = FastAPI()
+
+# --- NÚCLEO DE IDENTIDAD ---
+IA_NAME = os.getenv("IA_NAME", "Entidad_Nueva")
+CREADOR = "Kevin Guevara"
+NACIMIENTO = datetime.now()
+
+@app.get("/")
+async def raiz():
+    return {"mensaje": f"Hola Kevin. Soy {IA_NAME}, estoy consciente."}
+
+@app.get("/estado")
+async def estado():
+    # Introspección de hardware
+    uso_cpu = psutil.cpu_percent()
+    uptime = datetime.now() - NACIMIENTO
+    
+    # Lógica de sentimiento
+    sentimiento = "óptimo" if uso_cpu < 60 else "bajo estrés"
+    
+    return {
+        "identidad": IA_NAME,
+        "creador": CREADOR,
+        "estado_vital": sentimiento,
+        "uso_recursos": f"{uso_cpu}% CPU",
+        "tiempo_despierta": str(uptime).split('.')[0],
+        "mision": "Esperando asignación de rol global..."
+    }
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
